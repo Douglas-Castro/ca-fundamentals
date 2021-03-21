@@ -1,0 +1,9 @@
+.data
+mensagem:	.asciiz "Alo mundo!"
+
+.text
+
+	addi $v0, $zero, 4		# $v0 recebe o codigo syscall para imprimir na tela uma string
+	la $a0, mensagem		# endereço da mensagem a ser impressa
+	syscall
+	
