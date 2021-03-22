@@ -1,0 +1,43 @@
+# Scans the byte array room and counts the number of bytes with a value of 1 in the array.
+      	.data
+room: 	.space	64		    # 64 bytes array
+garbage: 	.word  0        # variable that counts the number of garbage
+length:	.word	64		    # variable that stores the room length
+string1: .asciiz " \n"
+      	.text
+main:
+	la $t0, room		    # loads the room address
+	lw $t1, length		    # loads room length
+	
+	li $t2, 0		        # set 0 in $t2 (garbage counter)
+
+cycle:
+	lbu   $t3, 0($t0)      	# set room value[n] in $t3
+	bne  $t3, 1, not_zero
+	addi $t2, $t2, 1      	# records garbage found
+	
+not_zero:
+	addi $t0, $t0, 1	# advance in the room array
+	addi $t1, $t1, -1	# counter-- ($t1)
+	bgtz $t1, cycle  	# continues until the array is fully scanned
+
+continue:
+
+	
+End:
+	sw $t2, garbage
+	
+	li  $v0, 1           # service 1 is print integer
+	add $a0, $t2, $zero  # load desired value into argument register $a0, using pseudo-op
+    	syscall
+    	
+    	li $v0, 4
+    	la $a0, string1
+    	syscall
+    	
+    	li  $v0, 5           # service 5 is read integer
+    	syscall
+    	
+    	add $a0, $v0, $zero
+    	li  $v0, 1           # service 1 is print integer
+    	syscall
