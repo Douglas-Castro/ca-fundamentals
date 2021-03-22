@@ -1,0 +1,16 @@
+.data
+mensagem:	.asciiz "Entered Value: "
+
+.text 
+	addi $v0, $zero, 5		# $v0 contains integer read
+	syscall
+	
+	add $s0, $zero, $v0		# copies the value read to $s0
+	
+	addi $v0, $zero, 4
+	la $a0, mensagem
+	syscall
+	
+	addi $v0, $zero, 1		# syscall integer to print
+	add $a0, $zero, $s0		# puts at $a0 value to be printed
+	syscall
