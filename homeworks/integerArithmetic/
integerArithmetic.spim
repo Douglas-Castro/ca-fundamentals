@@ -1,0 +1,211 @@
+	.data
+erro_1:		.asciiz "Entradas invalidas.\n"		
+erro_2:		.asciiz "O modulo nao eh primo.\n"
+saida1:		.asciiz "A exponencial modular "
+saida2:		.asciiz " elevado a "
+saida3:		.asciiz " (mod "
+saida4:		.asciiz ") eh "
+saida5:		.asciiz "."
+saida6:		.asciiz "\n"
+################################################################################################################################
+	.text
+main:
+		jal 	ler_inteiro			# chama a função ler_inteiro
+		move	$s0, $v0			# carrega $s0 com o valor lido na função le_inteiro
+		 
+		jal	ler_inteiro			# chama a função ler_inteiro
+		move	$s1, $v0			# carrega $s1 com o valor lido na função le_inteiro
+			
+	  	jal	ler_inteiro			# chama a função ler_inteiro
+		move	$s2, $v0			# carrega $s2 com o valor lido na função le_inteiro
+		
+		move	$a0, $s0			# carrega $a0 com o valor de $s0(parâmetro da função)
+		jal	analisar_entrada		# chama função analisa_entradas
+		move	$a0, $s1			# carrega $a0 com o valor de $s1(parâmetro da função)
+		jal	analisar_entrada		# chama função analisa_entradas
+		move	$a0, $s2			# carrega $a0 com o valor de $s2(parâmetro da função)
+		jal	analisar_entrada		# chama função analisa_entradas
+		
+		move	$a0, $s2			# carrega $a0 com o valor de $s2
+		move	$a1, $s2			# carrega $a1 com o valor de $s2
+		
+		jal	eh_primo			# chama função eh_primo
+		
+		move	$a0, $s0			# carrega $a0 com o valor de $s0
+		move	$a1, $s1			# carrega $a1 com o valor de $s1
+		move	$a2, $s2			# carrega $a2 com o valor de $s2
+				
+		jal	calc_exp			# chama função calc_exp
+		
+		move	$t0, $v0			# carrega em $t0 o valor da retorno da função ($v0) calc_exp
+		
+		jal	imprimir_saida			# jump para imprimir_saida
+		
+		j	exit
+ler_inteiro:
+		li 	$v0, 5				# código para ler um inteiro
+		syscall					# executa a chamada para ler
+		jr 	$ra				# volta para o lugar de onde foi chamado
+analisar_entrada:
+		li	$t0, 65535
+		
+		bgt     $a0, $t0, imprimir_erro1	# se $a0 > $t0 chama função imprime_erro1 
+		ble     $a0, $0, imprimir_erro1		# se $a0 < 0 chama função imprime_erro1
+
+		jr	$ra				# jump para PC+4
+eh_primo:
+		li	$t0,  2				# carrega o $t0 com o valor 2
+		
+		beq	$a0, $t0, fim_loop_eh_primo	# se $a0 = $t0, jump para fim_loop_eh_primo
+		
+		li	$t2,1				# carrega em $t2 o valor 1
+		
+		beq	$t2, $a0, imprimir_erro2	# se $t2 = $a0, jump para imprimir_erro
+		
+		li	$t1, 0				# carrega com 0 o reg $t1
+		
+		divu	$a0, $t0			# divide $a0 por $t0
+		
+		mfhi	$t3				# carrega $t3 com o resto da divisão
+		
+		beq	$t3, $zero, imprimir_erro2	# se $t3 = $zero, jump imprimir_erro2
+		
+		li	$t1, 3 # i = 3
+		li	$t2, 256 # i < 256
+		move	$t3, $a1 # num
+loop_eh_primo:
+		beq	$t1, $t3, fim_loop_eh_primo
+		bge	$t1, $t2, fim_loop_eh_primo
+
+		divu	$t3, $t1
+		
+		mfhi	$t4
+		
+		beq	$t4, $zero, imprimir_erro2
+		
+		addi	$t1, $t1, 2	
+		
+		j	loop_eh_primo			# jump para  loop_eh_primo
+fim_loop_eh_primo:
+		jr 	$ra				# jump para PC+4
+calc_exp:#resultado = $t5
+		move	$t0, $a1			# carrega $t0 com o valor do segundo parametro da função ($a1)
+		move	$t1, $a1			# carrega $t5 com o valo do reg $a1
+		li	$t2, 0				# carrega com zero o reg
+		li	$t3, 0x80000000			# carrega $t3 com o valor 1
+		li	$t4, 0x80000000				# carrega com zero o reg
+count:
+		addi	$t2, $t2, 1
+		srl	$t0, $t0, 1		
+		bne	$t0, $zero, count
+prepara_exp:
+		sll	$t1, $t1, 1			# faz um shift a direita
+			
+		and	$t0, $t1, $t3			# pega o primeiro bit de $t0($t1 = $t0 and 0x10000000)
+		
+		beq	$t0, $zero, prepara_exp		# se $t1 = $zero, então jump para prepara_exp
+		
+		divu	$a0, $a2			# faz uma divisão da base pelo modulo
+		
+		mfhi	$t5				# guarda o resto em $t5 
+		
+		sll	$t1, $t1, 1			# faz um shift a direita	
+continua:
+		addi	$t2, $t2, -1			# subtrai 1 no contador $t6
+		
+		beq	$t2, $zero, fim_calc		# se $t6 = 0, jump para o fim
+		
+		and	$t6, $t1, $t3			# pega o primeiro bit de $t0($t1 = $t0 and 0x10000000)
+		
+		beq	$t6, $t4, square_and_multiply	# se $t1 = 0, jump para square_and_multiply
+		
+		sll	$t1, $t1, 1			# faz um shift a direita
+square:
+		multu	$t5, $t5
+		
+		mflo	$t5
+		
+		divu	$t5, $a2			# faz uma divisão do resultado anterior pelo modulo
+		
+		mfhi	$t5				# guarda o resto em $t4
+		
+		j	continua
+square_and_multiply:
+		multu	$t5, $t5			# $t5 * $t5
+		
+		mflo	$t5				# guarda em $t4 o resultado da multiplicação
+		
+		divu	$t5, $a2			# faz uma divisão do resultado anterior pelo modulo
+		
+		mfhi	$t5				# guarda o resto em $t4
+		
+		multu	$t5, $a0			# multiplica a base pelo resultado anterior
+		
+		mflo	$t5
+		
+		divu	$t5, $a2			# faz uma divisão do resultado anterior pelo modulo
+		
+		mfhi	$t5				# guarda o resto em $t4
+		
+		sll	$t1, $t1, 1			# faz um shift a direita
+		
+		j 	continua			# jump para continua
+fim_calc:
+		move	$v0, $t5			# carrega o reg $v0 (retorno da função) com o resultado ($t4)
+		jr	$ra
+imprimir_saida:
+		li 	$v0, 4			
+		la 	$a0, saida1
+		syscall	
+		
+		li 	$v0, 1			
+		move 	$a0, $s0		
+		syscall	
+		
+		li 	$v0, 4			
+		la 	$a0, saida2
+		syscall	
+		
+		li 	$v0, 1			
+		move 	$a0, $s1		
+		syscall
+		
+		li 	$v0, 4			
+		la 	$a0, saida3
+		syscall	
+		
+		li	$v0, 1			
+		move 	$a0, $s2		
+		syscall
+		
+		li	$v0, 4			
+		la 	$a0, saida4
+		syscall	
+		
+		li 	$v0, 1			
+		move 	$a0, $t0		
+		syscall
+		
+		li 	$v0, 4			
+		la 	$a0, saida5
+		syscall	
+		
+		li 	$v0, 4			
+		la 	$a0, saida6
+		syscall	
+		
+		jr	$ra
+imprimir_erro1:
+		li	$v0, 4				# Carrega $vo com o código para imprimir uma string
+		la 	$a0, erro_1			# imprime a string erro_1
+		syscall
+		j 	exit				# finaliza o programa
+imprimir_erro2:
+		li 	$v0, 4				# Carrega $vo com o código para imprimir uma string
+		la 	$a0, erro_2			# imprime a string erro_2
+		syscall
+		j 	exit				# finaliza o programa
+exit:
+		li	$v0, 10				# código para finalizar um programa
+		syscall	
+
