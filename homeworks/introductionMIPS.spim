@@ -1,0 +1,147 @@
+	.text	
+main:
+	li $v0, 5			# ler o primeiro inteiro	
+	syscall
+	
+	add $s0, $zero, $v0		# guarda em $s0 o primeiro valor lido no terminal
+	
+	li $v0, 5			# ler o segundo inteiro	
+	syscall
+	
+	add $s1, $zero, $v0		# guarda em $s1 o segundo valor lido no terminal
+
+	li $v0, 5			# ler terceiro inteiro	
+	syscall
+	
+	add $s2, $zero, $v0		# guarda em $s2 o terceiro valor lido no terminal
+	
+	# Calcula soma e subtração entre $s0 e $s1
+	add $t0, $s0, $s1		# $t0 = $s0 + $s1
+	
+	li $v0, 4			# Imprime o resultado da adição
+	la $a0, strAdd
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $t0
+	syscall
+	
+	sub $t0, $s0, $s1		# $t0 = $s0 - $s1
+	
+	li $v0, 4			# Imprime o resultado da subtração
+	la $a0, strSub
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $t0		
+	syscall
+	
+	# Calcula and, or e xor entre $s0 e $s1
+	and $t0, $s0, $s1		# $t0 = $s0 and $s1
+	
+	li $v0, 4			# Imprime o resultado da and
+	la $a0, strAnd
+	syscall
+	
+	addi $v0, $zero, 1		
+	add $a0, $zero, $t0		
+	syscall
+	
+	or $t0, $s0, $s1		# $t0 = $s0 or $s1
+	
+	li $v0, 4			# Imprime o resultado da or
+	la $a0, strOr
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $t0		
+	syscall
+	
+	
+	xor $t0, $s0, $s1		# $t0 = $s0 xor $s1
+	
+	li $v0, 4			# Imprime o xor
+	la $a0, strXor
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $t0		
+	syscall
+	
+	# Calcula o valor de m
+	li $t6, 0x0000001F
+	
+	and $s3, $s2, $t6	# Mascascara: m = $s2 and $t6 
+	
+	
+	li $v0, 4			# Imprime mascara
+	la $a0, strMask
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $s3		
+	syscall
+	
+	# Faz sll em $s0 e srl em $s1
+	add $t1, $zero, $s0		# $t1 = $s0 
+	add $t2, $zero, $s1		# $t2 = $s1
+	
+	sllv $t1, $t1, $s3			
+	srlv $t2, $t2, $s3
+	
+	add $s4, $zero, $t1		# Salva o resulado de sll
+	add $s5, $zero, $t2	
+	
+	li $v0, 4			# Imprime o sll
+	la $a0, strSll1
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $s3		
+	syscall
+	
+	li $v0, 4
+	la $a0, str
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $s4		
+	syscall
+	
+	li $v0, 4			# Imprime o srl
+	la $a0, strSrl1
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $s3		
+	syscall
+	
+	li $v0, 4
+	la $a0, str
+	syscall
+	
+	li $v0, 1			
+	add $a0, $zero, $s5		
+	syscall
+	
+	li $v0, 4			# Imprime o srl
+	la $a0, pula_linha
+	syscall
+	
+	li $v0, 10			# Finaliza o programa
+	syscall
+	
+		.data	
+strAdd:		.asciiz "ADD: "
+strSub:		.asciiz "\nSUB: "
+strAnd:		.asciiz "\nAND: "
+strOr:		.asciiz "\nOR: "
+strXor:		.asciiz "\nXOR: "
+strMask:	.asciiz "\nMASK: "
+strSll1:	.asciiz "\nSLL("
+str:		.asciiz "): "
+strSrl1:	.asciiz "\nSRL("
+pula_linha: 	.asciiz "\n"
+	
+	
+		
